@@ -21,4 +21,8 @@ class Object
   def gpio_pull_up : (Integer) -> void
   def gpio_put : (Integer, Integer) -> void
   def gpio_get : (Integer) -> Integer
+  def adc_init : (Integer) -> void
+  def adc_set_dir : (Integer) -> void
+  def adc_read : -> Integer
+  def adc_read_v : -> Float
 end

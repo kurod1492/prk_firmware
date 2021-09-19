@@ -45,6 +45,7 @@ add_executable(${PROJECT}
   src/msc_disk.c
   src/usb_descriptors.c
   src/gpio.c
+  src/adc.c
   src/uart.c
   src/ws2812.c
   src/rotary_encoder.c
@@ -110,6 +111,7 @@ target_link_libraries(${PROJECT}
   tinyusb_board
   picoruby
   hardware_pio
+  hardware_adc
   hardware_pwm
   pico_multicore
   hardware_flash
