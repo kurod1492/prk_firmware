@@ -14,6 +14,7 @@ enum {
 
 void c_tud_task(mrb_vm *vm, mrb_value *v, int argc);
 void c_report_hid(mrb_vm *vm, mrb_value *v, int argc);
+void c_report_hid_mouse(mrb_vm *vm, mrb_value *v, int argc);
 void c_tud_mounted_q(mrb_vm *vm, mrb_value *v, int argc);
 
 #define TUD_INIT() do { \
@@ -21,6 +22,7 @@ void c_tud_mounted_q(mrb_vm *vm, mrb_value *v, int argc);
   mrbc_define_method(0, mrbc_class_object,   "tud_mounted?", c_tud_mounted_q); \
   mrbc_class *mrbc_class_Keyboard = mrbc_define_class(0, "Keyboard", mrbc_class_object); \
   mrbc_define_method(0, mrbc_class_Keyboard, "report_hid",   c_report_hid);    \
+  mrbc_define_method(0, mrbc_class_Keyboard, "report_hid_mouse",   c_report_hid_mouse);\
 } while (0)
 
 #endif /* USB_DESCRIPTORS_H_ */

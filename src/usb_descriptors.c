@@ -284,6 +284,26 @@ c_report_hid(mrb_vm *vm, mrb_value *v, int argc)
 }
 
 void
+c_report_hid_mouse(mrb_vm *vm, mrb_value *v, int argc)
+{
+  uint32_t const btn = 1;
+
+  // Remote wakeup
+  if (tud_suspended() && btn) {
+    // Wake up host if we are in suspend mode
+    // and REMOTE_WAKEUP feature is enabled by host
+    tud_remote_wakeup();
+  }
+  int8_t x_axis = GET_INT_ARG(1);
+  int8_t y_axis = GET_INT_ARG(2);
+
+  /*------------- Keyboard -------------*/
+  if (tud_hid_ready()) {
+    tud_hid_mouse_report(REPORT_ID_MOUSE, 0, x_axis, y_axis, 0, 0);
+  }
+}
+
+void
 c_tud_mounted_q(mrb_vm *vm, mrb_value *v, int argc)
 {
   if (tud_mounted()) {

@@ -745,6 +745,8 @@ class Keyboard
 
       # TODO: more features
       $rgb.fifo_push(true) if $rgb && !@switches.empty?
+      # mouse test
+      # report_hid_mouse(1, 1)
 
       # Receive switches from partner
       if @split && @anchor
