@@ -685,6 +685,24 @@ class Keyboard
     report_hid(0, "\000\000\000\000\000\000")
   end
 
+  def a_init()
+	i2c_write(0x39,[0x80,0x45])   #POWER ON, GESTURE ENABLE, PROXIMITY DETECT ENALBE,AEN=0
+	i2c_write(0x39,[0xA3,0xC1])   #Gain x8, LED Drive 25mA, Wait Time 2.8mS
+	i2c_write(0x39,[0xAB,0x00])   #GIEN off(INTERRUPT DISABLE), GMODE OFF
+	i2c_write(0x39,[0xA0,40])     # Enter Threshold
+	i2c_write(0x39,[0xA1,40])     # Exit Threshold
+end
+
+def af_check()
+	check = i2c_read(0x39, 0xAE, 1)
+	return check[0]
+end
+
+def ag_check()
+	check = i2c_read(0x39, 0xAB, 1)
+	return check[0]
+end
+
   # **************************************************************
   #  For those who are willing to contribute to PRK Firmware:
   #
@@ -693,6 +711,14 @@ class Keyboard
   #   Please refrain from "refactoring" for a while.
   # **************************************************************
   def start!
+    i2c_init()
+    a_init()
+    g_end = 0
+    i = 0
+    datas_old = [0,0,0,0]
+    datas_peak = [0,0,0,0]
+    upe_flag = 0
+    cnt = 0
     puts "Starting keyboard task ..."
 
     @keycodes = Array.new
@@ -707,6 +733,41 @@ class Keyboard
     end
     default_sleep = 10
     while true
+      if(af_check() != 0)
+        datas = i2c_read(0x39, 0xFC, 4)
+        if(g_end == 0)
+          cnt += 1
+          i = 0
+          while(i<4)
+            if(datas[i] > datas_old[i])
+              datas_old[i] = datas[i]
+              datas_peak[i] = cnt
+            else
+              upe_flag = (upe_flag & ~(1 << i)) + (1 << i)
+            end
+            i += 1
+          end
+          if(upe_flag == 0b1111)
+            if((datas_peak[0] > datas_peak[1]) && (datas_peak[0] >= datas_peak[2]) && (datas_peak[0] >= datas_peak[3]))
+              send_key(:KC_DOWN)
+            elsif((datas_peak[1] > datas_peak[0]) && (datas_peak[1] >= datas_peak[2]) && (datas_peak[1] >= datas_peak[3]))
+              send_key(:KC_UP)
+            elsif((datas_peak[2] > datas_peak[3]) && (datas_peak[2] >= datas_peak[0]) && (datas_peak[2] >= datas_peak[1]))
+              send_key(:KC_RIGHT)
+            elsif((datas_peak[3] > datas_peak[2]) && (datas_peak[3] >= datas_peak[0]) && (datas_peak[3] >= datas_peak[1]))
+              send_key(:KC_LEFT)
+            else
+              send_key(:KC_)
+            end
+            datas_old = [0,0,0,0]
+            upe_flag = 0
+            cnt = 0
+            g_end = 1
+          end
+        end
+      elsif((ag_check() == 0) && (g_end == 1))
+        g_end = 0
+      end
       now = board_millis
       @keycodes.clear
 

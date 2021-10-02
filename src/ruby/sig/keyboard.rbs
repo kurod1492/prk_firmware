@@ -79,4 +79,7 @@ class Keyboard
   def macro: (String text, ?::Array[Symbol] opt) -> void
   def eval: (String) -> void
   def ruby: () -> void
+  def a_init : -> void
+  def af_check : -> Integer
+  def ag_check : -> Integer
 end

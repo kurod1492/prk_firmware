@@ -83,6 +83,7 @@ add_custom_target(ruby
   COMMAND ${RBC} -Brotary_encoder rotary_encoder.rb
   COMMAND ${RBC} -Btud            tud.rb
   COMMAND ${RBC} -Brgb_task       rgb_task.rb
+  #COMMAND ${RBC} -Badps9960       adps9960.rb
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/ruby/lib
 )
 

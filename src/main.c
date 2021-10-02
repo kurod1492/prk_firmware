@@ -25,10 +25,12 @@
 #include "ruby/lib/keyboard.c"
 #include "ruby/lib/rotary_encoder.c"
 #include "ruby/lib/rgb.c"
+//#include "ruby/lib/adps9960.c"
 #include "../lib/picoruby/cli/ruby/buffer.c"
 /* tasks */
 #include "ruby/lib/tud.c"
 #include "ruby/lib/rgb_task.c"
+//#include "ruby/lib/adps9960.c"
 #ifdef PRK_NO_MSC
 #include "ruby/lib/keymap.c"
 #endif
@@ -178,8 +180,10 @@ int main() {
   mrbc_load_model(buffer);
   mrbc_load_model(rotary_encoder);
   mrbc_load_model(keyboard);
+  //mrbc_load_model(adps9960);
   mrbc_create_task(tud, 0);
   mrbc_create_task(rgb_task, 0);
+  //mrbc_create_task(adps9960, 0);
   create_sandbox();
   mrbc_define_method(0, mrbc_class_object, "autoreload_ready?", c_autoreload_ready_q);
 #ifdef PRK_NO_MSC
