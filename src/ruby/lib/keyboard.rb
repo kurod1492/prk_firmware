@@ -529,6 +529,22 @@ class Keyboard
     @layer_names << name
   end
 
+  def cheng_layer(layer_name)
+    keymap = @keymaps[layer_name]
+    @switches.each do |switch|
+      keycode = keymap[switch[0]][switch[1]]
+      next unless keycode.is_a?(Integer)
+      if keycode < -255 # Key with SHIFT
+        @keycodes << ((keycode + 0x100) * -1).chr
+        @modifier |= 0b00100000
+      elsif keycode < 0 # Normal keys
+        @keycodes << (keycode * -1).chr
+      else # Modifier keys
+        @modifier |= keycode
+      end
+    end
+  end
+
   # param[0] :on_release
   # param[1] :on_hold
   # param[2] :release_threshold
