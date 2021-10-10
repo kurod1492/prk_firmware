@@ -5,7 +5,7 @@ void c_adc_set_dir(mrb_vm *vm, mrb_value *v, int argc);
 void c_adc_read(mrb_vm *vm, mrb_value *v, int argc);
 void c_adc_read_v(mrb_vm *vm, mrb_value *v, int argc);
 
-#define GPIO_INIT() do { \
+#define ADC_INIT() do { \
   mrbc_define_method(0, mrbc_class_object, "adc_init",    c_adc_init);    \
   mrbc_define_method(0, mrbc_class_object, "adc_set_dir", c_adc_set_dir); \
   mrbc_define_method(0, mrbc_class_object, "adc_read",    c_adc_read);    \

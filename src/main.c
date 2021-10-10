@@ -167,6 +167,7 @@ int main() {
 #endif
   CDC_INIT();
   GPIO_INIT();
+  ADC_INIT();
   TUD_INIT();
   UART_INIT();
   WS2812_INIT();
