@@ -45,6 +45,7 @@ add_executable(${PROJECT}
   src/msc_disk.c
   src/usb_descriptors.c
   src/gpio.c
+  src/adc.c
   src/uart.c
   src/i2c.c
   src/glcdfont.c
@@ -114,6 +115,7 @@ target_link_libraries(${PROJECT}
   tinyusb_board
   picoruby
   hardware_pio
+  hardware_adc
   hardware_pwm
   hardware_i2c
   pico_multicore

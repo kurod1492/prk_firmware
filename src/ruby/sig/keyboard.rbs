@@ -59,6 +59,7 @@ class Keyboard
   def uart_rx_init : (Integer) -> void
   def uart_tx_init : (Integer) -> void
   def report_hid : (Integer, String) -> void
+  def report_hid_mouse : (Integer, Integer) -> void
   def initialize: -> void
   def layer: () -> Symbol
   def set_anchor: (Symbol val) -> void

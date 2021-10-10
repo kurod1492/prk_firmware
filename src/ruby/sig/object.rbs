@@ -29,4 +29,8 @@ class Object
   def oled_puts_txt : (Integer, String) -> void
   def oled_clear : -> void
   def oled_clear_line : (Integer) -> void
+  def adc_init : (Integer) -> void
+  def adc_set_dir : (Integer) -> void
+  def adc_read : -> Integer
+  def adc_read_v : -> Float
 end

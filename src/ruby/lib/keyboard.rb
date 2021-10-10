@@ -822,6 +822,17 @@ end
 
       # TODO: more features
       $rgb.fifo_push(true) if $rgb && !@switches.empty?
+      
+      # mouse test
+      # adc_set_dir(0)
+      # x = adc_read_v()
+      # x -= 1.65
+      # x *= 4
+      # adc_set_dir(1)
+      # y = adc_read_v()
+      # y -= 1.65
+      # y *= 4
+      # report_hid_mouse(x.to_i, y.to_i)
 
       # Receive switches from partner
       if @split && @anchor

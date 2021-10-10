@@ -7,10 +7,12 @@
 #include "pico/stdlib.h"
 #include "bsp/board.h"
 #include "hardware/clocks.h"
+#include "hardware/adc.h"
 
 /* mrbc_class */
 #include "msc_disk.h"
 #include "gpio.h"
+#include "adc.h"
 #include "usb_descriptors.h"
 #include "uart.h"
 #include "i2c.h"
@@ -159,6 +161,7 @@ int main() {
   stdio_init_all();
   board_init();
   tusb_init();
+  adc_init();
   mrbc_init(memory_pool, MEMORY_SIZE);
   mrbc_define_method(0, mrbc_class_object, "board_millis", c_board_millis);
   mrbc_define_method(0, mrbc_class_object, "rand",         c_rand);
@@ -168,6 +171,7 @@ int main() {
 #endif
   CDC_INIT();
   GPIO_INIT();
+  ADC_INIT();
   TUD_INIT();
   UART_INIT();
   I2C_INIT();
