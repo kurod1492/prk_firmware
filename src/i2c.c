@@ -6,10 +6,10 @@ void
 c_i2c_init(mrb_vm *vm, mrb_value *v, int argc)
 {
   i2c_init(I2C_PORT, 400 * 1000);
-  gpio_set_function(16, GPIO_FUNC_I2C);
-  gpio_set_function(17, GPIO_FUNC_I2C);
-  gpio_pull_up(16);
-  gpio_pull_up(17);
+  gpio_set_function(2, GPIO_FUNC_I2C);
+  gpio_set_function(3, GPIO_FUNC_I2C);
+  gpio_pull_up(2);
+  gpio_pull_up(3);
 }
 
 void

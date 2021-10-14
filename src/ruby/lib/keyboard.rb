@@ -727,6 +727,8 @@ end
   #   Please refrain from "refactoring" for a while.
   # **************************************************************
   def start!
+    adc_init(26)
+    adc_init(27)
     i2c_init()
     a_init()
     g_end = 0
@@ -824,15 +826,18 @@ end
       $rgb.fifo_push(true) if $rgb && !@switches.empty?
       
       # mouse test
-      # adc_set_dir(0)
-      # x = adc_read_v()
-      # x -= 1.65
-      # x *= 4
-      # adc_set_dir(1)
-      # y = adc_read_v()
-      # y -= 1.65
-      # y *= 4
-      # report_hid_mouse(x.to_i, y.to_i)
+      adc_set_dir(1)
+      x = adc_read_v()
+      x -= 1.65
+      x *= 5
+      adc_set_dir(0)
+      y = adc_read_v()
+      y -= 1.65
+      y *= 5
+      y = y * -1
+      if(0!=x.to_i||0!=y.to_i)
+        report_hid_mouse(x.to_i, y.to_i)
+      end
 
       # Receive switches from partner
       if @split && @anchor

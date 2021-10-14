@@ -1,7 +1,7 @@
 /* mruby/c VM */
 #include <mrubyc.h>
 
-#define I2C_PORT i2c0
+#define I2C_PORT i2c1
 
 void c_i2c_init(mrb_vm *vm, mrb_value *v, int argc);
 void c_i2c_write(mrb_vm *vm, mrb_value *v, int argc);
