@@ -84,4 +84,6 @@ class Keyboard
   def a_init : -> void
   def af_check : -> Integer
   def ag_check : -> Integer
+  def mouse_init_pins: (Integer, Integer) -> void
+  def mouse_adc_xy: (Integer) -> Array[Integer]
 end

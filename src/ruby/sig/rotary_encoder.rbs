@@ -9,8 +9,7 @@ class RotaryEncoder
   @pin_a: Integer
   @pin_b: Integer
   @rotation: Integer
-  @partner_keycode_cw: Integer
-  @partner_keycode_ccw: Integer
+  @partner: Integer
   @split_left: bool
   @partner_encoders: Array[RotaryEncoder]
 
@@ -19,7 +18,6 @@ class RotaryEncoder
 
   def initialize: (Integer pin_a, Integer pin_b) -> void
   def init_pins: () -> void
-  def create_keycodes: (Integer) -> void
   def call_proc_if: (Integer) -> void
   def configure: (Symbol symbol) -> void
   def left?: () -> bool

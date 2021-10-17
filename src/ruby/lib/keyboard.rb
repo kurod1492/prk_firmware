@@ -423,6 +423,7 @@ class Keyboard
     @anchor_left = true # so-called "master left"
     @uart_pin = 1
     $rgb = nil
+    $mouse = nil
     $encoders = Array.new
     @partner_encoders = Array.new
     @macro_keycodes = Array.new
@@ -441,7 +442,6 @@ class Keyboard
     when RotaryEncoder
       # @type var feature: RotaryEncoder
       if @split
-        feature.create_keycodes(@partner_encoders.size)
         if @anchor_left
           if @anchor == feature.left? # XNOR
             feature.init_pins
@@ -719,6 +719,24 @@ def ag_check()
 	return check[0]
 end
 
+def mouse_init_pins(a, b)
+  adc_init(a)
+  adc_init(b)
+end
+
+def mouse_adc_xy(multiple)
+  adc_set_dir(1)
+  x = adc_read_v()
+  x -= 1.65
+  x *= multiple
+  adc_set_dir(0)
+  y = adc_read_v()
+  y -= 1.65
+  y *= multiple
+  y = y * -1
+  return [x.to_i, y.to_i]
+end
+
   # **************************************************************
   #  For those who are willing to contribute to PRK Firmware:
   #
@@ -727,8 +745,9 @@ end
   #   Please refrain from "refactoring" for a while.
   # **************************************************************
   def start!
-    adc_init(26)
-    adc_init(27)
+    if @anchor
+      mouse_init_pins(26,27)
+    end
     i2c_init()
     # a_init()
     g_end = 0
@@ -824,20 +843,6 @@ end
 
       # TODO: more features
       $rgb.fifo_push(true) if $rgb && !@switches.empty?
-      
-      # mouse test
-      adc_set_dir(1)
-      x = adc_read_v()
-      x -= 1.65
-      x *= 5
-      adc_set_dir(0)
-      y = adc_read_v()
-      y -= 1.65
-      y *= 5
-      y = y * -1
-      if(0!=x.to_i||0!=y.to_i)
-        report_hid_mouse(x.to_i, y.to_i)
-      end
 
       # Receive switches from partner
       if @split && @anchor
@@ -853,6 +858,14 @@ end
             # To avoid chattering
             @switches << switch unless @switches.include?(switch)
           end
+        end
+      end
+
+      # mouse test
+      if @anchor
+        xy = mouse_adc_xy(5)
+        if(0!=xy[0]||0!=xy[1])
+          report_hid_mouse(xy[0], xy[1])
         end
       end
 
