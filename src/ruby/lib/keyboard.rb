@@ -1001,6 +1001,7 @@ end
           #   ^^^      row number (0 to 7)
           #      ^^^^^ col number (0 to 31)
           uart_putc_raw((switch[0] << 5) + switch[1])
+          sleep_ms(5)
         end
       end
 
