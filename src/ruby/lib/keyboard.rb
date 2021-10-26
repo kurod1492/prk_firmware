@@ -745,9 +745,10 @@ end
   #   Please refrain from "refactoring" for a while.
   # **************************************************************
   def start!
-    if @anchor
-      mouse_init_pins(26,27)
-    end
+    # if @anchor
+    #   mouse_init_pins(26,27)
+    # end
+    init_paw3204()
     i2c_init()
     # a_init()
     g_end = 0
@@ -756,6 +757,7 @@ end
     datas_peak = [0,0,0,0]
     upe_flag = 0
     cnt = 0
+    xy_count = 0
     puts "Starting keyboard task ..."
 
     @keycodes = Array.new
@@ -811,6 +813,14 @@ end
       @switches.clear
       @modifier = 0
 
+      # mouse test2
+      read_track_ball(0x02)
+      x = read_track_ball(0x03)
+      y = read_track_ball(0x04)
+      if(0!=x||0!=y)
+        report_hid_mouse(x, y)
+      end
+
       # detect physical switches that are pushed
       @rows.each_with_index do |row_pin, row|
         gpio_put(row_pin, LO)
@@ -862,12 +872,12 @@ end
       end
 
       # mouse test
-      if @anchor
-        xy = mouse_adc_xy(5)
-        if(0!=xy[0]||0!=xy[1])
-          report_hid_mouse(xy[0], xy[1])
-        end
-      end
+      # if @anchor
+      #   xy = mouse_adc_xy(5)
+      #   if(0!=xy[0]||0!=xy[1])
+      #     report_hid_mouse(xy[0], xy[1])
+      #   end
+      # end
 
       if @anchor
         desired_layer = @layer

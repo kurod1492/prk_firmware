@@ -33,4 +33,6 @@ class Object
   def adc_set_dir : (Integer) -> void
   def adc_read : -> Integer
   def adc_read_v : -> Float
+  def read_track_ball : (Integer) -> Integer
+  def init_paw3204 : -> void
 end
