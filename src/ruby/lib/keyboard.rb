@@ -428,6 +428,10 @@ class Keyboard
     @partner_encoders = Array.new
     @macro_keycodes = Array.new
     @buffer = Buffer.new
+    $mouse_button = 0
+    $mouse_trackball = false
+    $mouse_joystick = false
+    $gesture_mode = false
   end
 
   attr_accessor :split, :uart_pin
@@ -701,41 +705,41 @@ class Keyboard
     report_hid(0, "\000\000\000\000\000\000")
   end
 
-  def a_init()
-	i2c_write(0x39,[0x80,0x45])   #POWER ON, GESTURE ENABLE, PROXIMITY DETECT ENALBE,AEN=0
-	i2c_write(0x39,[0xA3,0xC1])   #Gain x8, LED Drive 25mA, Wait Time 2.8mS
-	i2c_write(0x39,[0xAB,0x00])   #GIEN off(INTERRUPT DISABLE), GMODE OFF
-	i2c_write(0x39,[0xA0,40])     # Enter Threshold
-	i2c_write(0x39,[0xA1,40])     # Exit Threshold
-end
+  def gesture_init()
+    i2c_write(0x39,[0x80,0x45])   #POWER ON, GESTURE ENABLE, PROXIMITY DETECT ENALBE,AEN=0
+    i2c_write(0x39,[0xA3,0xC1])   #Gain x8, LED Drive 25mA, Wait Time 2.8mS
+    i2c_write(0x39,[0xAB,0x00])   #GIEN off(INTERRUPT DISABLE), GMODE OFF
+    i2c_write(0x39,[0xA0,40])     # Enter Threshold
+    i2c_write(0x39,[0xA1,40])     # Exit Threshold
+  end
 
-def af_check()
-	check = i2c_read(0x39, 0xAE, 1)
-	return check[0]
-end
+  def af_check()
+    check = i2c_read(0x39, 0xAE, 1)
+    return check[0]
+  end
 
-def ag_check()
-	check = i2c_read(0x39, 0xAB, 1)
-	return check[0]
-end
+  def ag_check()
+    check = i2c_read(0x39, 0xAB, 1)
+    return check[0]
+  end
 
-def mouse_init_pins(a, b)
-  adc_init(a)
-  adc_init(b)
-end
+  def mouse_init_pins(a, b)
+    adc_init(a)
+    adc_init(b)
+  end
 
-def mouse_adc_xy(multiple)
-  adc_set_dir(1)
-  x = adc_read_v()
-  x -= 1.65
-  x *= multiple
-  adc_set_dir(0)
-  y = adc_read_v()
-  y -= 1.65
-  y *= multiple
-  y = y * -1
-  return [x.to_i, y.to_i]
-end
+  def mouse_adc_xy(multiple)
+    adc_set_dir(1)
+    x = adc_read_v()
+    x -= 1.65
+    x *= multiple
+    adc_set_dir(0)
+    y = adc_read_v()
+    y -= 1.65
+    y *= multiple
+    y = y * -1
+    return [x.to_i, y.to_i]
+  end
 
   # **************************************************************
   #  For those who are willing to contribute to PRK Firmware:
@@ -745,12 +749,15 @@ end
   #   Please refrain from "refactoring" for a while.
   # **************************************************************
   def start!
-    # if @anchor
-    #   mouse_init_pins(26,27)
-    # end
-    init_paw3204()
+    if @anchor
+      if $mouse_trackball
+        init_paw3204()
+      elsif $mouse_joystick
+        mouse_init_pins(26,27)
+      end
+    end
     i2c_init()
-    # a_init()
+    gesture_init()
     g_end = 0
     i = 0
     datas_old = [0,0,0,0]
@@ -758,6 +765,7 @@ end
     upe_flag = 0
     cnt = 0
     xy_count = 0
+    mouse_reset = true
     puts "Starting keyboard task ..."
 
     @keycodes = Array.new
@@ -772,54 +780,58 @@ end
     end
     default_sleep = 10
     while true
-      # if(af_check() != 0)
-      #   datas = i2c_read(0x39, 0xFC, 4)
-      #   if(g_end == 0)
-      #     cnt += 1
-      #     i = 0
-      #     while(i<4)
-      #       if(datas[i] > datas_old[i])
-      #         datas_old[i] = datas[i]
-      #         datas_peak[i] = cnt
-      #       else
-      #         upe_flag = (upe_flag & ~(1 << i)) + (1 << i)
-      #       end
-      #       i += 1
-      #     end
-      #     if(upe_flag == 0b1111)
-      #       if((datas_peak[0] > datas_peak[1]) && (datas_peak[0] >= datas_peak[2]) && (datas_peak[0] >= datas_peak[3]))
-      #         send_key(:KC_DOWN)
-      #       elsif((datas_peak[1] > datas_peak[0]) && (datas_peak[1] >= datas_peak[2]) && (datas_peak[1] >= datas_peak[3]))
-      #         send_key(:KC_UP)
-      #       elsif((datas_peak[2] > datas_peak[3]) && (datas_peak[2] >= datas_peak[0]) && (datas_peak[2] >= datas_peak[1]))
-      #         send_key(:KC_RIGHT)
-      #       elsif((datas_peak[3] > datas_peak[2]) && (datas_peak[3] >= datas_peak[0]) && (datas_peak[3] >= datas_peak[1]))
-      #         send_key(:KC_LEFT)
-      #       else
-      #         send_key(:KC_)
-      #       end
-      #       datas_old = [0,0,0,0]
-      #       upe_flag = 0
-      #       cnt = 0
-      #       g_end = 1
-      #     end
-      #   end
-      # elsif((ag_check() == 0) && (g_end == 1))
-      #   g_end = 0
-      # end
+      if($gesture_mode)
+        if(af_check() != 0)
+          datas = i2c_read(0x39, 0xFC, 4)
+          if(g_end == 0)
+            cnt += 1
+            i = 0
+            while(i<4)
+              if(datas[i] > datas_old[i])
+                datas_old[i] = datas[i]
+                datas_peak[i] = cnt
+              else
+                upe_flag = (upe_flag & ~(1 << i)) + (1 << i)
+              end
+              i += 1
+            end
+            if(upe_flag == 0b1111)
+              if((datas_peak[0] > datas_peak[1]) && (datas_peak[0] >= datas_peak[2]) && (datas_peak[0] >= datas_peak[3]))
+                send_key(:KC_DOWN)
+              elsif((datas_peak[1] > datas_peak[0]) && (datas_peak[1] >= datas_peak[2]) && (datas_peak[1] >= datas_peak[3]))
+                send_key(:KC_UP)
+              elsif((datas_peak[2] > datas_peak[3]) && (datas_peak[2] >= datas_peak[0]) && (datas_peak[2] >= datas_peak[1]))
+                send_key(:KC_RIGHT)
+              elsif((datas_peak[3] > datas_peak[2]) && (datas_peak[3] >= datas_peak[0]) && (datas_peak[3] >= datas_peak[1]))
+                send_key(:KC_LEFT)
+              else
+                send_key(:KC_)
+              end
+              datas_old = [0,0,0,0]
+              upe_flag = 0
+              cnt = 0
+              g_end = 1
+            end
+          end
+        elsif((ag_check() == 0) && (g_end == 1))
+          g_end = 0
+        end
+      end
       now = board_millis
       @keycodes.clear
 
       @switches.clear
       @modifier = 0
 
+      $mouse_button = 0
+
       # mouse test2
-      read_track_ball(0x02)
-      x = read_track_ball(0x03)
-      y = read_track_ball(0x04)
-      if(0!=x||0!=y)
-        report_hid_mouse(x, y)
-      end
+      # read_track_ball(0x02)
+      # x = read_track_ball(0x03)
+      # y = read_track_ball(0x04)
+      # if(0!=x||0!=y)
+      #   report_hid_mouse(x, y)
+      # end
 
       # detect physical switches that are pushed
       @rows.each_with_index do |row_pin, row|
@@ -872,6 +884,16 @@ end
       end
 
       # mouse test
+      # read_track_ball(0x02)
+      # x = read_track_ball(0x03)
+      # y = read_track_ball(0x04)
+      # if(0!=x||0!=y||0!=$mouse_button)
+      #   report_hid_mouse(x, y, $mouse_button)
+      #   mouse_reset = true
+      # elsif(mouse_reset)
+      #   report_hid_mouse(0, 0, 0)
+      #   mouse_reset = false
+      # end
       # if @anchor
       #   xy = mouse_adc_xy(5)
       #   if(0!=xy[0]||0!=xy[1])
@@ -993,6 +1015,26 @@ end
             @buffer.refresh_screen
           end
         end
+        x = 0
+        y = 0
+        if $mouse_trackball
+          read_track_ball(0x02)
+          y = read_track_ball(0x03)
+          x = read_track_ball(0x04)
+          x = x * -1
+        elsif $mouse_joystick
+          xy = mouse_adc_xy(5)
+          x = xy[0]
+          y = xy[1]
+        end
+        if(0!=x||0!=y||0!=$mouse_button)
+          report_hid_mouse(x, y, $mouse_button)
+          mouse_reset = true
+        elsif(mouse_reset)
+          report_hid_mouse(0, 0, 0)
+          mouse_reset = false
+        end
+        
         report_hid(@modifier, @keycodes.join)
 
         if @switches.empty? && @locked_layer.nil?

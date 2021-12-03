@@ -288,10 +288,11 @@ c_report_hid_mouse(mrb_vm *vm, mrb_value *v, int argc)
 {
   int8_t x_axis = GET_INT_ARG(1);
   int8_t y_axis = GET_INT_ARG(2);
+  int8_t button = GET_INT_ARG(3);
 
   /*------------- Mouse -------------*/
   if (tud_hid_ready()) {
-    tud_hid_mouse_report(REPORT_ID_MOUSE, 0, x_axis, y_axis, 0, 0);
+    tud_hid_mouse_report(REPORT_ID_MOUSE, button, x_axis, y_axis, 0, 0);
   }
 }
 

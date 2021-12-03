@@ -59,7 +59,6 @@ class Keyboard
   def uart_rx_init : (Integer) -> void
   def uart_tx_init : (Integer) -> void
   def report_hid : (Integer, String) -> void
-  def report_hid_mouse : (Integer, Integer) -> void
   def initialize: -> void
   def layer: () -> Symbol
   def set_anchor: (Symbol val) -> void
@@ -81,7 +80,7 @@ class Keyboard
   def macro: (String text, ?::Array[Symbol] opt) -> void
   def eval: (String) -> void
   def ruby: () -> void
-  def a_init : -> void
+  def gesture_init : -> void
   def af_check : -> Integer
   def ag_check : -> Integer
   def mouse_init_pins: (Integer, Integer) -> void

@@ -88,8 +88,18 @@ class RotaryEncoder
     # ignore values of 1 and -1
     if @rotation > 1 && @proc
       res = @partner
+      @proc_cnt += 1
+      if(@proc.size <= @proc_cnt)
+        @proc_cnt = 0
+      end
+      @proc[@proc_cnt].call
     elsif @rotation < -1 && @proc
       res = 1 + @partner
+      @proc_cnt -= 1
+      if(0 > @proc_cnt)
+        @proc_cnt = @proc.size - 1
+      end
+      @proc[@proc_cnt].call
     else
       res = 0
     end

@@ -35,4 +35,5 @@ class Object
   def adc_read_v : -> Float
   def read_track_ball : (Integer) -> Integer
   def init_paw3204 : -> void
+  def report_hid_mouse : (Integer, Integer, Integer) -> void
 end
