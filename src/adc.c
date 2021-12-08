@@ -25,3 +25,9 @@ c_adc_read_v(mrb_vm *vm, mrb_value *v, int argc)
 {
   SET_FLOAT_RETURN(3.3 * adc_read() / 0x1000);
 }
+
+void
+c_adc_set_temp_sensor_enabled(mrb_vm *vm, mrb_value *v, int argc)
+{
+  adc_set_temp_sensor_enabled(GET_INT_ARG(1));
+}
